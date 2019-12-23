@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>LiquickCleany</title>
+	<%= csrf_meta_tags %>
+	<%= csp_meta_tag %>
+
+	<%= stylesheet_link_tag    'admin/application', media: 'all', 'data-turbolinks-track': 'reload' %>
+	<%= javascript_include_tag 'admins/application', 'data-turbolinks-track': 'reload' %>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+	<%= yield(:for_head) %>
+</head>
+
+<body class="skin-blue">
+	<%= render "admin/admins/layouts/header" %>
+	<%= render "admin/admins/layouts/sidebar" %>
+	<div class="content-wrapper">
+		<section class="content">
+			<%= yield %>
+		</section>
+	</div>
+	<%= yield(:for_js) %>
+</body>
+
+</html>

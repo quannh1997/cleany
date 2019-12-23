@@ -1,0 +1,122 @@
+<% content_for :for_content do %>
+  <!-- ##### Breadcrumb Area Start ##### -->
+  <div class="vizew-breadcrumb">
+      <div class="container">
+          <div class="row">
+              <div class="col-12">
+                  <nav aria-label="breadcrumb">
+                      <ol class="breadcrumb">
+                          <li class="breadcrumb-item"><a href="<%= root_path %>"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
+                          <li class="breadcrumb-item active" aria-current="page">Signup</li>
+                      </ol>
+                  </nav>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- ##### Breadcrumb Area End ##### -->
+
+  <!-- ##### Signup Area Start ##### -->
+  <div class="vizew-login-area section-padding-80">
+      <div class="container">
+          <div class="row justify-content-center">
+              <div class="col-12 col-md-6">
+                  <div class="login-content">
+                      <!-- Section Title -->
+                      <div class="section-heading">
+                          <h4>Create partner's account</h4>
+                          <div class="line"></div>
+                      </div>
+
+                      <%= form_for @user do |f| %>
+                        <div class="form-group">
+                          <%= f.text_field :name, placeholder: "* Enter your username", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                          <%= f.text_field :email, placeholder: "* Enter your email", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                          <%= f.password_field :password, placeholder: "* Enter your password", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                          <%= f.password_field :password_confirmation, placeholder: "* Confirm your Password", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                          <%= f.number_field :phone, placeholder: "* Enter your phone", class: "form-control" %>
+                        </div>
+                        <div class="form-group">
+                          <select class="chosen-select form-control" id="city" name="partner[city]" data-dependent="district" style="-webkit-appearance: menulist;" data-placeholder="-- Choose city/province --">
+                            <option selected="selected" value="default">-- Choose city/province --</option>
+                            <% @cities.each do |city| %>
+                              <option value="<%= city[0] %>"><%= city[1]['name'] %></option>
+                            <% end %>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="chosen-select form-control" id="district" name="partner[district]" data-dependent="ward" style="-webkit-appearance: menulist;" data-placeholder="-- Choose district --">
+                                <option selected="selected" value="default">-- Choose district --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <span class="form-control" >* Worktime</span>
+                          <%= f.select :worktime_start, options_for_select(6..20), {} , {:class => "form-control col-12 col-md-5", :style=>"display:inline;-webkit-appearance: menulist;"} %>
+                          <span>~</span>
+                          <%= f.select :worktime_end, options_for_select(7..21), {} , {:class => "form-control col-12 col-md-5", :style=>"display:inline;-webkit-appearance: menulist;"} %>
+                          <span> H</span>
+                        </div>
+
+                        <div class="form-group">
+                            <%= f.text_area :description, cols: 20, rows: 40, placeholder: "Enter your description\nShould enter your Genre of cleaning for User's searching, such as: Living room, Bathroom, Bedroom...", class: "form-control" %>
+                        </div>
+
+                        <%= f.submit "Register", class: "btn vizew-btn w-100 mt-30" %>
+                        <div class="text-right">Have user account?
+                          <%= link_to "Login", partner_login_path %>
+                        </div>
+
+
+                      <% end %>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- ##### Signup Area End ##### -->
+<% end %>
+
+<% content_for :for_js do %>
+    <script>
+        function limit_time(){
+            var end_times = $('#partner_worktime_end')[0].options;
+          if (parseInt($('#partner_worktime_end').val()) <= parseInt($('#partner_worktime_start').val())){
+              $('#partner_worktime_end').val(parseInt($('#partner_worktime_start').val()) + 1)
+          }
+          for (var i = 0; i < end_times.length; i++){
+            if (parseInt(end_times[i].value) <= parseInt($('#partner_worktime_start').val())){
+              $(end_times[i]).css('display', 'none')
+            }else{
+              $(end_times[i]).css('display', 'block')
+            }
+          }
+        }
+
+        limit_time();
+        $('#partner_worktime_start').change(limit_time);
+        $('#city').change(function() {
+            if($(this).val() != 'default') {
+                var city_code = $(this).val();
+                $.ajax({
+                    url: "/get_district",
+                    method: "GET",
+                    data: {
+                        city_code: city_code,
+                    },
+                    success:function(result){
+                        $('#district').html(result.data);
+                    }
+                })
+            }
+        });
+    </script>
+<% end %>

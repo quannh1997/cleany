@@ -1,0 +1,557 @@
+<% content_for :for_head do %>
+  <%= stylesheet_link_tag 'custom/profile', media: 'all', 'data-turbolinks-track': 'reload' %>
+<% end %>
+
+<% content_for :for_content do %>
+    <!-- ##### Breadcrumb Area Start ##### -->
+    <div class="vizew-breadcrumb">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
+                            <li class="breadcrumb-item"><a href="#">Partner List</a></li>
+                            <!-- <li class="breadcrumb-item active" aria-current="page">Archive by Category SPORTS</li> -->
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ##### Breadcrumb Area End ##### -->
+
+
+
+    <!-- ##### Archive Grid Posts Area Start ##### -->
+    <div class="vizew-posts-area mb-80">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-lg-8">
+                    <!-- Archive Catagory & View Options -->
+                    <div class="archive-catagory-view mb-50 d-flex align-items-center justify-content-between">
+                        <!-- Catagory -->
+                        <div class="archive-catagory">
+                            <h4><i class="fa fa-trophy" aria-hidden="true"></i> Cleaning Staff List</h4>
+                        </div>
+                        <!-- View Options -->
+                        <div class="view-options">
+                            <a href="#" class="active"><i class="fa fa-th-large" aria-hidden="true"></i></a>
+                            <!-- <a href="archive-list.html"><i class="fa fa-list-ul" aria-hidden="true"></i></a> -->
+                        </div>
+                    </div>
+
+                    <div class="row" id="grid-show">
+                        <% @partners.each_with_index do |partner, index| %>
+                        <!-- Single Blog Post -->
+                            <div class="col-12 col-md-6">
+                                <div class="single-post-area mb-50">
+                                    <!-- Post Thumbnail -->
+                                    <div class="post-thumbnail">
+                                        <a href="<%= partner_detail_path(partner.id) %>">
+                                        <img style="border: 1px solid #363836; height: 233px" alt="<%= partner.description %>" title="<%= partner.description %>" src="<%= partner.avatar %>" onerror="this.src='img/bg-img/clean<%= index %>.jpg'">
+                                        </a>
+                                        <!-- Video Duration -->
+                                        <span class="video-duration"><%= number_to_currency(partner.cost*1000, precision: 0, unit: "" )+ " VND / H" %></span>
+                                    </div>
+
+                                    <!-- Post Content -->
+                                    <div class="post-content">
+                                        <% book_results = partner.working_logs.where(status: 1)  %>
+                                        <% book_date_value = 0 %>
+                                        <% book_results.each do |book_result| %>
+                                        <%  book_date_value += (book_result.working_date - DateTime.now.to_date).to_i  %>
+                                        <% end %>
+
+                                        <a href="#" class="post-cata cata-sm cata-success"><%= address_decode(partner.city, partner.district)%></a>
+                                        <a href="#" class="post-cata cata-sm cata-primary"><%= partner.worktime_start + ' h - ' + partner.worktime_end + ' h' %></a>
+                                        <% if(book_results.length == 3) %>
+                                            <a style="pointer-events: none; cursor: default; background-color: gray; color: white;" class="post-cata cata-sm cata-warning">Book</a>
+                                        <% elsif(!current_user) %>
+                                            <a href="#" data-user-login-path=<%= signin_path %> onclick="handleLoginFirst(this)" class="post-cata cata-sm cata-warning">Book</a>
+                                        <% else %>
+                                            <a href="#" onclick="handleBook(this)" data-partner-book-date-len=<%= book_results.length %> data-partner-book-date-value=<%= book_date_value %> data-partner-cost=<%= partner.cost*1000 %> data-time-start=<%= partner.worktime_start %> data-time-end=<%= partner.worktime_end %>  data-partner-id="<%= partner.id %>" class="post-cata cata-sm cata-warning">Book</a>
+                                        <% end %>
+                                        <div lass="post-title" style="font-size: 15px; font-weight: 400;">
+                                            <div><b>Name</b>: <%= partner.name %></div>
+                                            <div><b>Email</b>: <%= partner.email %></div>
+                                            <div><b>Phone</b>: <%= partner.phone %></div>
+                                            <% if partner.working_logs.find_by(working_date: DateTime.now, status: 1) %>
+                                                <div><b>Status</b>: 
+                                                    <span style="color: red">
+                                                        Booked Today
+                                                    </span>
+                                                </div>
+                                            <% else %>
+                                                <div><b>Status</b>: Free Today</div>
+                                            <% end %>
+                                        </div>
+                                        <div class="post-meta d-flex">
+                                            <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i> <%= partner.comments.length %></a>
+                                            <!-- <a href="#"><i class="fa" aria-hidden="true"></i><span style="color:yellow">★★★★☆</span></a> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <% end %>
+
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav class="mt-50">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item"><a class="page-link" href="#"><i class="fa fa-angle-left"></i></a></li>
+                            <li class="page-item"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#"><i class="fa fa-angle-right"></i></a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="sidebar-area">
+
+                        <!-- Begin Advanced Search -->
+                        <section class="pgl-advanced-search pgl-bg-light search-widget mb-50">
+                            <div class="container">
+                                <form action="<%= staff_search_path %>" method="GET" role="search">
+                                    <div class="form-group row">
+                                        <h4 class="col-sm-12 text-center">Advance Search</h4>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <input type="text" value="<%= @keyword %>" class="form-control" id="keyword" name="keyword" placeholder="Enter your keyword to search" autofocus>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-2 price-filter-cover">
+                                             <span class="vertical-sub">Price: </span>
+                                        </div>
+                                        <div class="col-sm-4 price-filter-cover">
+                                            <label class="sr-only" for="search-minprice">Price from</label>
+                                            <select value="<%= @minprice %>" id="search-minprice" name="minprice" data-placeholder="Price from" class="chosen-select price-from-filter">
+                                                <%# <option value="default">Price from</option> %>
+                                                <option value="0" <%= 'selected' if @minprice=='0' %>>0</option>
+                                                <option value="1000000" <%= 'selected' if @minprice=='1000000' %>>1.000.000</option>
+                                                <option value="2000000" <%= 'selected' if @minprice=='2000000' %>>2.000.000</option>
+                                                <option value="5000000" <%= 'selected' if @minprice=='5000000' %>>5.000.000</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-1 price-filter-cover">
+                                             <span class="vertical-sub">~</span>
+                                        </div>
+                                        <div class="col-sm-4 price-filter-cover">
+                                            <label class="sr-only" for="search-maxprice">to</label>
+                                            <select id="search-maxprice" name="maxprice" data-placeholder="to" class="chosen-select price-from-filter">
+                                                <%# <option selected="selected" value="default">to</option> %>
+                                                <option value="1000000" <%= 'selected' if @maxprice=='1000000' %>>1.000.000</option>
+                                                <option value="2000000" <%= 'selected' if @maxprice=='2000000' %>>2.000.000</option>
+                                                <option value="5000000" <%= 'selected' if @maxprice=='5000000' %>>5.000.000</option>
+                                                <option value="8000000" <%= 'selected' if @maxprice=='8000000' %>>8.000.000</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-1 price-type-cover">
+                                             <span>VND</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-2 price-filter-cover">
+                                             <span class="vertical-sub">Time: </span>
+                                        </div>
+                                        <div class="col-sm-4 price-filter-cover">
+                                            <label class="sr-only" for="search-mintime">Time from</label>
+                                            <select id="search-mintime" name="mintime" data-placeholder="Time from" class="chosen-select price-from-filter">
+                                                <%# <option selected="selected" value="default">Time from</option> %>
+                                                <% (6..20).each do |i| %>
+                                                    <option value="<%= i %>" <%= 'selected' if @mintime==i.to_s %>><%= i %></option>
+                                                <% end %>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-1 price-filter-cover">
+                                             <span class="vertical-sub">~</span>
+                                        </div>
+                                        <div class="col-sm-4 price-filter-cover">
+                                            <label class="sr-only" for="search-maxtime">to</label>
+                                            <select id="search-maxtime" name="maxtime" data-placeholder="to" class="chosen-select price-from-filter">
+                                                <%# <option selected="selected" value="default">to</option> %>
+                                                <% (7..21).each do |i| %>
+                                                    <option value="<%= i %>" <%= 'selected' if @maxtime==i.to_s %>><%= i %></option>
+                                                <% end %>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-1 price-type-cover">
+                                                <span>H</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <label class="sr-only" for="search-city">city/province</label>
+                                            <select class="chosen-select working-time-filter" id="city" name="city" data-dependent="district" data-placeholder="-- Choose city/province --">
+                                                <option selected="selected" value="default">-- Choose city/province --</option>
+                                                <% @cities.each do |city| %>
+                                                    <option value="<%= city[0] %>"><%= city[1]['name'] %></option>
+                                                <% end %>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label class="sr-only" for="district">district</label>
+                                                <select class="chosen-select working-time-filter" id="district" name="district" data-dependent="ward" data-placeholder="-- Choose district --">
+                                                    <option selected="selected" value="default">-- Choose district --</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="form-group row">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-block btn-primary">Search</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                
+            
+                                </form>
+                            </div>
+                        </section>
+                        <!-- End Advanced Search -->
+
+                        <!-- ***** Single Widget ***** -->
+                        <div class="single-widget newsletter-widget mb-50">
+                            <!-- Section Heading -->
+                            <div class="section-heading style-2 mb-30">
+                                <h4>Newsletter</h4>
+                                <div class="line"></div>
+                            </div>
+                            <p>Subscribe our newsletter gor get notification about new updates, information discount, etc.</p>
+                            <!-- Newsletter Form -->
+                            <div class="newsletter-form">
+                                <form action="#" method="post">
+                                    <input type="email" name="nl-email" class="form-control mb-15" id="emailnl" placeholder="Enter your email">
+                                    <button type="submit" class="btn vizew-btn w-100">Subscribe</button>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ##### Archive Grid Posts Area End ##### -->
+
+    <!-- ##### Popup Book Partner Start ##### -->
+
+    <div id="booking" class="booking-modal">
+
+        <!-- Modal content -->
+        <div class="booking-modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="form-group" style="padding-top: 15px">
+                <label style="width: 10%;">Time:</label>
+                <div class="col-sm-4" style="display: inline-block; margin-left: 4%;">
+                    <label class="sr-only">Time from</label>
+
+                    <select id="book-mintime" data-placeholder="Time from" class="chosen-select price-from-filter">
+                        <%# <option selected="selected" value="default">Time from</option> %>
+                        <% (6..20).each do |i| %>
+                            <option disabled value="<%= i %>"><%= i %></option>
+                        <% end %>
+                    </select>
+                </div>
+                <div class="col-sm-1" style="display: inline-block">
+                     <span class="vertical-sub">~</span>
+                </div>
+                <div class="col-sm-4" style="display: inline-block">
+                    <label class="sr-only" >to</label>
+                    <select id="book-maxtime" data-placeholder="to" class="chosen-select price-from-filter">
+                        <%# <option selected="selected" value="default">to</option> %>
+                        <% (7..21).each do |i| %>
+                            <option disabled value="<%= i %>"><%= i %></option>
+                        <% end %>
+                    </select>
+                </div>
+                <!-- <div class="col-sm-1" style="display: inline-block; padding: ;">
+                        <span>H</span>
+                </div> -->
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Date:</label>
+                <div class="col-sm-9" style="margin-top: 6px;">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="date0" value=0>
+                            <label class="form-check-label">Today</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="date1" value=1>
+                            <label class="form-check-label">Tomorrow</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="date2" value=2>
+                            <label class="form-check-label">The day after tomorrow</label>
+                        </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Address:</label>
+                <div class="col-sm-9">
+                    <input type="text" id="book-address" class="form-control" placeholder="Your Address" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Note:</label>
+                <div class="col-sm-9">
+                    <textarea class="form-control is-invalid" id="book-note" style="height: auto !important" placeholder="Your note" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Price: </label>
+                <div class="col-sm-10">
+                    <input type="text" readonly class="form-control-plaintext" id="book-price" value="0 VND">
+                    <input type="text" hidden readonly class="form-control-plaintext" id="book-price-hour" value="">
+                    <input type="text" hidden readonly class="form-control-plaintext" id="book-price-total" value="">
+                </div>
+            </div>
+            <label class="col-sm-2 col-form-label"></label>
+            <button type="submit" id="book-submit-btn" data-user-id="<%= current_user ? current_user.id : '' %>" data-partner-id='' onClick="hanldeBookBtnClick(this)" class="btn btn-primary" style="width: 100px;">Book</button>
+        </div>
+      
+    </div>
+
+    <!-- ##### Popup Book Partner Start ##### -->
+
+<% end %>
+
+<% content_for :for_js do %>
+    <script>
+        function limit_time(){
+          var end_times = $('#search-maxtime')[0].options
+          if (parseInt($('#search-maxtime').val()) <= parseInt($('#search-mintime').val())){
+              $('#search-maxtime').val(parseInt($('#search-mintime').val()) + 1)
+          }
+          for (var i = 0; i < end_times.length; i++){
+            if (parseInt(end_times[i].value) <= parseInt($('#search-mintime').val())){
+              $(end_times[i]).css('display', 'none')
+            }else{
+              $(end_times[i]).css('display', 'block')
+            }
+          }
+        }
+
+        limit_time()
+
+        $('#search-mintime').change(limit_time)
+
+        $('#city').change(function() {
+            if($(this).val() != 'default') {
+                var city_code = $(this).val();
+                $.ajax({
+                    url: "/get_district",
+                    method: "GET",
+                    data: {
+                        city_code: city_code,
+                    },
+                    success:function(result){
+                        $('#district').html(result.data);
+                    }
+                })
+            }
+        });
+    </script>
+
+    <script>
+        function refreshAll() {
+            for (value = 6; value < 21; value++) {
+                $("#book-mintime option[value=" + value + "]").attr('disabled','disabled');
+                fvalue = value + 1;
+                $("#book-maxtime option[value=" + fvalue + "]").attr('disabled','disabled');
+            }
+
+            for (value = 0; value < 3; value++) {
+                $("#date" + value).removeAttr('disabled');
+                $("#date" + value).removeAttr('checked');
+            }
+            $('#book-address').val('');
+            $('#book-note').val('');
+        }
+
+        
+
+        var modal = document.getElementById("booking");
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                refreshAll();
+            }
+        }
+
+        function handleLoginFirst(book_btn_login) {
+            var r =  confirm("Please Login first !");
+            if (r == true) {
+                var signin_path = book_btn_login.getAttribute("data-user-login-path");
+                window.location.replace(signin_path);
+            }
+        }
+
+        function hanldeBookBtnClick(book_submit_btn) {
+            var start_time = parseInt($('#book-mintime').val());
+            var end_time = parseInt($('#book-maxtime').val());
+            var price = parseInt($('#book-price-total').val());
+
+            var date_next = parseInt($('.form-check-input:checked').val());
+            var address = $('#book-address').val();
+            if (!address) {
+                toastr.info("Please enter your address!");
+                return;
+            }
+
+            var note = $('#book-note').val();
+
+            var pid = book_submit_btn.getAttribute("data-partner-id");
+            var uid = book_submit_btn.getAttribute("data-user-id");
+
+            var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+
+            $.ajaxSetup( {
+                beforeSend: function ( xhr ) {
+                    xhr.setRequestHeader( 'X-CSRF-Token', token );
+                }
+            });
+
+            $.ajax({
+                    url: '/booking',
+                    type: 'POST',
+                    data: {
+                        partner_id: pid,
+                        user_id: uid,
+                        start_time: start_time,
+                        end_time: end_time,
+                        date_next: date_next,
+                        address: address,
+                        note: note,
+                        price: price,
+                    }
+                }).done(function(result) {
+                    toastr.success(result.data);
+                    modal.style.display = "none";
+                    setTimeout(location.reload.bind(location), 4000);
+            });
+            
+        }
+
+        function handleBook(book_btn) {
+            var span = document.getElementsByClassName("close-btn")[0];
+
+            var time_start = parseInt(book_btn.getAttribute("data-time-start"));
+            var time_end = parseInt(book_btn.getAttribute("data-time-end"));
+            var pid = parseInt(book_btn.getAttribute("data-partner-id"));
+            var price_hour = parseInt(book_btn.getAttribute("data-partner-cost"));
+            var price = price_hour*(time_end - time_start);
+            var book_date_value = parseInt(book_btn.getAttribute("data-partner-book-date-value"));
+            var book_date_len = parseInt(book_btn.getAttribute("data-partner-book-date-len"));
+
+            $('#book-mintime').val(time_start);
+            $('#book-maxtime').val(time_end);
+            $('#book-price-hour').val(price_hour);
+            $('#book-price-total').val(price);
+            $('#book-price').val(price.toLocaleString() + " VND");
+
+            $('#book-submit-btn').attr('data-partner-id', pid);
+
+            $('#date0').click();
+
+            if(book_date_len == 1) {
+                switch(book_date_value) {
+                    case 0:
+                        $('#date0').attr('disabled', 'disabled');
+                        $('#date1').click();
+                        break;
+                    case 1:
+                        $('#date1').attr('disabled', 'disabled');
+                        break;
+                    case 2:
+                        $('#date2').attr('disabled', 'disabled');
+                        break;
+                }
+                
+            }
+
+            if(book_date_len == 2) {
+                switch(book_date_value) {
+                    case 1:
+                        $('#date0').attr('disabled', 'disabled');
+                        $('#date1').attr('disabled', 'disabled');
+                        $('#date2').click();
+                        break;
+                    case 2:
+                        $('#date0').attr('disabled', 'disabled');
+                        $('#date2').attr('disabled', 'disabled');
+                        $('#date1').click();
+                        break;
+                    case 3:
+                        $('#date1').attr('disabled', 'disabled');
+                        $('#date2').attr('disabled', 'disabled');
+                        break;
+                }
+                
+            }
+
+            
+
+            for (value = time_start; value < time_end; value++) {
+                $("#book-mintime option[value=" + value + "]").removeAttr('disabled');
+                fvalue = value + 1;
+                $("#book-maxtime option[value=" + fvalue + "]").removeAttr('disabled');
+            }
+
+            modal.style.display = "block";
+            span.onclick = function() {
+                modal.style.display = "none";
+                refreshAll();
+            }
+        }
+        
+    </script>
+
+    <script>
+        function limit_book_time(){
+          var end_times = $('#book-maxtime')[0].options
+          if (parseInt($('#book-maxtime').val()) <= parseInt($('#book-mintime').val())){
+              $('#book-maxtime').val(parseInt($('#book-mintime').val()) + 1)
+          }
+          for (var i = 0; i < end_times.length; i++){
+            if (parseInt(end_times[i].value) <= parseInt($('#book-mintime').val())){
+              $(end_times[i]).css('display', 'none')
+            }else{
+              $(end_times[i]).css('display', 'block')
+            }
+          }
+        }
+
+        function hanlePriceChange() {
+            var time_start = parseInt($('#book-mintime').val());
+            var time_end = parseInt($('#book-maxtime').val());
+            var price = parseInt($('#book-price-hour').val())*(time_end - time_start);
+            $('#book-price').val(price.toLocaleString() + " VND");
+            $('#book-price-total').val(price);
+        }
+
+        limit_book_time()
+
+        $('#book-mintime').change(limit_book_time)
+        $('#book-mintime').change(hanlePriceChange)
+        $('#book-maxtime').change(hanlePriceChange)
+
+    </script>
+<% end %>

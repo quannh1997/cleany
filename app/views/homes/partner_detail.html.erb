@@ -1,0 +1,521 @@
+<% content_for :for_head do %>
+  <%= stylesheet_link_tag 'custom/profile', media: 'all', 'data-turbolinks-track': 'reload' %>
+<% end %>
+
+<% content_for :for_content do %>
+    <!-- ##### Breadcrumb Area Start ##### -->
+    <div class="vizew-breadcrumb">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
+                            <li class="breadcrumb-item"><a href="#">Partner Detail</a></li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ##### Breadcrumb Area End ##### -->
+
+    <!-- ##### Post Details Area Start ##### -->
+    <section class="post-details-area mb-80">
+        <div class="container">
+
+            <div class="row justify-content-center">
+                <!-- Post Details Content Area -->
+                <div class="col-12 col-lg-8 col-xl-7">
+                    <div class="post-details-content">
+                        <!-- Blog Content -->
+                        <div class="blog-content">
+
+                            <!-- Post Author -->
+                            <div class="vizew-post-author align-items-center py-5" style="border-bottom: 0 !important;">
+                                <!-- <div class="post-author-thumb">
+                                    <img src="img/bg-img/30.jpg" alt="">
+                                </div> -->
+                                <div class="post-thumbnail">
+                                    <img style="border: 1px solid #363836; width: 100%" alt="<%= @partner.description %>" title="<%= @partner.description %>" src="<%= @partner.avatar %>" onerror="this.src='/img/bg-img/clean<%= @partner.id %>.jpg'">
+
+                                    <!-- Video Duration -->
+                                    <!-- <span class="video-duration"><%= number_to_currency(@partner.cost*1000, precision: 0, unit: "" )+ " VND / H" %></span> -->
+                                </div>
+                                <div class="post-content">
+                                    <h2><%= @partner.name %></h2>
+                                    <% book_results = @partner.working_logs.where(status: 1)  %>
+                                    <% book_date_value = 0 %>
+                                    <% book_results.each do |book_result| %>
+                                    <%  book_date_value += (book_result.working_date - DateTime.now.to_date).to_i  %>
+                                    <% end %>
+
+                                    <a href="#" class="post-cata cata-sm cata-success"><%= address_decode(@partner.city, @partner.district)%></a>
+                                    <a href="#" class="post-cata cata-sm cata-primary"><%= @partner.worktime_start + ' h - ' + @partner.worktime_end + ' h' %></a>
+                                    <% if(book_results.length == 3) %>
+                                        <a style="pointer-events: none; cursor: default; background-color: gray; color: white;" class="post-cata cata-sm cata-warning">Book</a>
+                                    <% elsif(!current_user) %>
+                                        <a href="#" data-user-login-path=<%= signin_path %> onclick="handleLoginFirst(this)" class="post-cata cata-sm cata-warning">Book</a>
+                                    <% else %>
+                                        <a href="#" onclick="handleBook(this)" data-partner-book-date-len=<%= book_results.length %> data-partner-book-date-value=<%= book_date_value %> data-partner-cost=<%= @partner.cost*1000 %> data-time-start=<%= @partner.worktime_start %> data-time-end=<%= @partner.worktime_end %>  data-partner-id="<%= @partner.id %>" class="post-cata cata-sm cata-warning">Book</a>
+                                    <% end %>
+                                    <div lass="post-title" style="font-size: 15px; font-weight: 400;">
+                                        <div><b>Email</b>: <%= @partner.email %></div>
+                                        <div><b>Phone</b>: <%= @partner.phone %></div>
+                                        <% if @partner.working_logs.find_by(working_date: DateTime.now, status: 1) %>
+                                            <div><b>Status</b>: 
+                                                <span style="color: red">
+                                                    Booked Today
+                                                </span>
+                                            </div>
+                                        <% else %>
+                                            <div><b>Status</b>: Free Today</div>
+                                        <% end %>
+                                        <div><b>Cost</b>: <%= number_to_currency(@partner.cost*1000, precision: 0, unit: "" )+ " VND / H" %></div>
+                                        <div><b>Description</b>: <%= @partner.description %></div>
+                                    </div>
+                                    <div class="post-meta d-flex">
+                                        <a href="#"><i class="fa fa-comments-o" aria-hidden="true"></i><span id="comment-count-label"> <%= @partner.comments.length %></span></a>
+                                        <!-- <a href="#"><i class="fa" aria-hidden="true"></i><span style="color:yellow">★★★★☆</span></a> -->
+                                    </div>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Post A Comment Area -->
+                            <div class="post-a-comment-area">
+
+                                <!-- Section Title -->
+                                <div class="section-heading style-2">
+                                    <h4>Leave a reply</h4>
+                                    <div class="line"></div>
+                                </div>
+
+                                <!-- Reply Form -->
+                                <div class="contact-form-area">
+                                    <form action="<%= create_comment_path %>" method="post">
+                                        <%= csrf_meta_tags %>
+                                        <div class="row">
+                                            <% if current_user %>
+                                              <input type="text" value="<%= current_user.id %>" name="uid" hidden>
+                                              <input type="text" value="<%= @partner.id %>" name="pid" hidden>
+                                              <div class="col-12">
+                                                <textarea name="comment_content" class="form-control" placeholder="Leave your comment..." rows="4" style="height: 140px !important;" required></textarea>
+                                              </div>
+                                            <% else %>
+                                              <div class="col-12">
+                                                <textarea name="comment_content" class="form-control" placeholder="Please log in to comment!" disabled rows="4" style="height: 140px !important;" required></textarea>
+                                              </div>
+                                            <% end %>
+                                            
+                                            <div class="col-12">
+                                                <button class="btn vizew-btn mt-30" <%= "disabled" unless current_user %> type="submit">Submit Comment</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Comment Area Start -->
+                            <div class="comment_area clearfix mb-50" id="comment-part" style="border-top: 0 !important;">
+                              
+                                <!-- Section Title -->
+                                <div class="section-heading style-2">
+                                    <h4>Comment</h4>
+                                    <div class="line"></div>
+                                </div>
+
+                                <ul>
+                                  <% @partner.comments.order(created_at: :desc).each_with_index do |comment, index| %>  
+                                    <!-- Single Comment Area -->
+                                    <li class="single_comment_area" data-comment-id=<%= comment.id %> id="comment-index-<%= index %>" <%= "hidden" if index > 2 %>>
+                                        <!-- Comment Content -->
+                                        <div class="comment-content d-flex" >
+                                            <!-- Comment Author -->
+                                            <div class="comment-author">
+                                                <img src="<%= comment.user.avatar %>" alt="author" onerror="this.src='https://i.imgur.com/MYHtJt5.png'">
+                                            </div>
+                                            <!-- Comment Meta -->
+                                            <div class="comment-meta" style="width: 100%;">
+                                                <div class="row justify-content-between" >
+                                                    <div class="col-3" style="padding-right: 0;">
+                                                        <p class="comment-date" style="font-size: 8px;"><%= time_ago_in_words(comment.created_at) %></p>
+                                                    </div>
+                                                    <div class="col-9" style="padding-left: 0;">
+                                                        <% if comment.user == current_user %>
+                                                        <a href="#" onClick="deleteComment(this)" data-comment-id="<%= comment.id %>" style="font-size: 14px; margin-left: 10px; color: red; ">
+                                                            Delete 
+                                                        </a>
+                                                        <% end %>
+                                                    </div>
+                                                </div>
+                                                <h6><%= comment.user.name %></h6>
+                                                <p><%= comment.content %></p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                  <% end %>
+                                </ul>
+                                <div class="row justify-content-md-center" id="see-all-btn">
+                                    <button onClick="showMore(this)" data-comments-count="<%= @partner.comments.length %>" type="submit" class="btn btn-info">
+                                        See All...
+                                    </button>
+                                </div>
+                            </div>
+
+                            
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ##### Post Details Area End ##### -->
+
+    <!-- ##### Popup Book Partner Start ##### -->
+
+    <div id="booking" class="booking-modal">
+
+        <!-- Modal content -->
+        <div class="booking-modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="form-group" style="padding-top: 15px">
+                <label style="width: 10%;">Time:</label>
+                <div class="col-sm-4" style="display: inline-block; margin-left: 4%;">
+                    <label class="sr-only">Time from</label>
+
+                    <select id="book-mintime" data-placeholder="Time from" class="chosen-select price-from-filter">
+                        <%# <option selected="selected" value="default">Time from</option> %>
+                        <% (6..20).each do |i| %>
+                            <option disabled value="<%= i %>"><%= i %></option>
+                        <% end %>
+                    </select>
+                </div>
+                <div class="col-sm-1" style="display: inline-block">
+                     <span class="vertical-sub">~</span>
+                </div>
+                <div class="col-sm-4" style="display: inline-block">
+                    <label class="sr-only" >to</label>
+                    <select id="book-maxtime" data-placeholder="to" class="chosen-select price-from-filter">
+                        <%# <option selected="selected" value="default">to</option> %>
+                        <% (7..21).each do |i| %>
+                            <option disabled value="<%= i %>"><%= i %></option>
+                        <% end %>
+                    </select>
+                </div>
+                <!-- <div class="col-sm-1" style="display: inline-block; padding: ;">
+                        <span>H</span>
+                </div> -->
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Date:</label>
+                <div class="col-sm-9" style="margin-top: 6px;">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="date0" value=0>
+                            <label class="form-check-label">Today</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="date1" value=1>
+                            <label class="form-check-label">Tomorrow</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="date2" value=2>
+                            <label class="form-check-label">The day after tomorrow</label>
+                        </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Address:</label>
+                <div class="col-sm-9">
+                    <input type="text" id="book-address" class="form-control" placeholder="Your Address" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Note:</label>
+                <div class="col-sm-9">
+                    <textarea class="form-control is-invalid" id="book-note" style="height: auto !important" placeholder="Your note" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Price: </label>
+                <div class="col-sm-10">
+                    <input type="text" readonly class="form-control-plaintext" id="book-price" value="0 VND">
+                    <input type="text" hidden readonly class="form-control-plaintext" id="book-price-hour" value="">
+                    <input type="text" hidden readonly class="form-control-plaintext" id="book-price-total" value="">
+                </div>
+            </div>
+            <label class="col-sm-2 col-form-label"></label>
+            <button type="submit" id="book-submit-btn" data-user-id="<%= current_user ? current_user.id : '' %>" data-partner-id='' onClick="hanldeBookBtnClick(this)" class="btn btn-primary" style="width: 100px;">Book</button>
+        </div>
+      
+    </div>
+
+    <!-- ##### Popup Book Partner Start ##### -->
+
+<% end %>
+
+<% content_for :for_js do %>
+    <script>
+        function limit_time(){
+          var end_times = $('#search-maxtime')[0].options
+          if (parseInt($('#search-maxtime').val()) <= parseInt($('#search-mintime').val())){
+              $('#search-maxtime').val(parseInt($('#search-mintime').val()) + 1)
+          }
+          for (var i = 0; i < end_times.length; i++){
+            if (parseInt(end_times[i].value) <= parseInt($('#search-mintime').val())){
+              $(end_times[i]).css('display', 'none')
+            }else{
+              $(end_times[i]).css('display', 'block')
+            }
+          }
+        }
+
+        limit_time()
+
+        $('#search-mintime').change(limit_time)
+
+        $('#city').change(function() {
+            if($(this).val() != 'default') {
+                var city_code = $(this).val();
+                $.ajax({
+                    url: "/get_district",
+                    method: "GET",
+                    data: {
+                        city_code: city_code,
+                    },
+                    success:function(result){
+                        $('#district').html(result.data);
+                    }
+                })
+            }
+        });
+    </script>
+
+    <script>
+        function refreshAll() {
+            for (value = 6; value < 21; value++) {
+                $("#book-mintime option[value=" + value + "]").attr('disabled','disabled');
+                fvalue = value + 1;
+                $("#book-maxtime option[value=" + fvalue + "]").attr('disabled','disabled');
+            }
+
+            for (value = 0; value < 3; value++) {
+                $("#date" + value).removeAttr('disabled');
+                $("#date" + value).removeAttr('checked');
+            }
+            $('#book-address').val('');
+            $('#book-note').val('');
+        }
+
+        
+
+        var modal = document.getElementById("booking");
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                refreshAll();
+            }
+        }
+
+        function handleLoginFirst(book_btn_login) {
+            var r =  confirm("Please Login first !");
+            if (r == true) {
+                var signin_path = book_btn_login.getAttribute("data-user-login-path");
+                window.location.replace(signin_path);
+            }
+        }
+
+        function hanldeBookBtnClick(book_submit_btn) {
+            var start_time = parseInt($('#book-mintime').val());
+            var end_time = parseInt($('#book-maxtime').val());
+            var price = parseInt($('#book-price-total').val());
+
+            var date_next = parseInt($('.form-check-input:checked').val());
+            var address = $('#book-address').val();
+            if (!address) {
+                toastr.info("Please enter your address!");
+                return;
+            }
+
+            var note = $('#book-note').val();
+
+            var pid = book_submit_btn.getAttribute("data-partner-id");
+            var uid = book_submit_btn.getAttribute("data-user-id");
+
+            var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+
+            $.ajaxSetup( {
+                beforeSend: function ( xhr ) {
+                    xhr.setRequestHeader( 'X-CSRF-Token', token );
+                }
+            });
+
+            $.ajax({
+                    url: '/booking',
+                    type: 'POST',
+                    data: {
+                        partner_id: pid,
+                        user_id: uid,
+                        start_time: start_time,
+                        end_time: end_time,
+                        date_next: date_next,
+                        address: address,
+                        note: note,
+                        price: price,
+                    }
+                }).done(function(result) {
+                    toastr.success(result.data);
+                    modal.style.display = "none";
+                    setTimeout(location.reload.bind(location), 4000);
+            });
+            
+        }
+
+        function handleBook(book_btn) {
+            var span = document.getElementsByClassName("close-btn")[0];
+
+            var time_start = parseInt(book_btn.getAttribute("data-time-start"));
+            var time_end = parseInt(book_btn.getAttribute("data-time-end"));
+            var pid = parseInt(book_btn.getAttribute("data-partner-id"));
+            var price_hour = parseInt(book_btn.getAttribute("data-partner-cost"));
+            var price = price_hour*(time_end - time_start);
+            var book_date_value = parseInt(book_btn.getAttribute("data-partner-book-date-value"));
+            var book_date_len = parseInt(book_btn.getAttribute("data-partner-book-date-len"));
+
+            $('#book-mintime').val(time_start);
+            $('#book-maxtime').val(time_end);
+            $('#book-price-hour').val(price_hour);
+            $('#book-price-total').val(price);
+            $('#book-price').val(price.toLocaleString() + " VND");
+
+            $('#book-submit-btn').attr('data-partner-id', pid);
+
+            $('#date0').click();
+
+            if(book_date_len == 1) {
+                switch(book_date_value) {
+                    case 0:
+                        $('#date0').attr('disabled', 'disabled');
+                        $('#date1').click();
+                        break;
+                    case 1:
+                        $('#date1').attr('disabled', 'disabled');
+                        break;
+                    case 2:
+                        $('#date2').attr('disabled', 'disabled');
+                        break;
+                }
+                
+            }
+
+            if(book_date_len == 2) {
+                switch(book_date_value) {
+                    case 1:
+                        $('#date0').attr('disabled', 'disabled');
+                        $('#date1').attr('disabled', 'disabled');
+                        $('#date2').click();
+                        break;
+                    case 2:
+                        $('#date0').attr('disabled', 'disabled');
+                        $('#date2').attr('disabled', 'disabled');
+                        $('#date1').click();
+                        break;
+                    case 3:
+                        $('#date1').attr('disabled', 'disabled');
+                        $('#date2').attr('disabled', 'disabled');
+                        break;
+                }
+                
+            }
+
+            
+
+            for (value = time_start; value < time_end; value++) {
+                $("#book-mintime option[value=" + value + "]").removeAttr('disabled');
+                fvalue = value + 1;
+                $("#book-maxtime option[value=" + fvalue + "]").removeAttr('disabled');
+            }
+
+            modal.style.display = "block";
+            span.onclick = function() {
+                modal.style.display = "none";
+                refreshAll();
+            }
+        }
+        
+    </script>
+
+    <script>
+        function limit_book_time(){
+          var end_times = $('#book-maxtime')[0].options
+          if (parseInt($('#book-maxtime').val()) <= parseInt($('#book-mintime').val())){
+              $('#book-maxtime').val(parseInt($('#book-mintime').val()) + 1)
+          }
+          for (var i = 0; i < end_times.length; i++){
+            if (parseInt(end_times[i].value) <= parseInt($('#book-mintime').val())){
+              $(end_times[i]).css('display', 'none')
+            }else{
+              $(end_times[i]).css('display', 'block')
+            }
+          }
+        }
+
+        function hanlePriceChange() {
+            var time_start = parseInt($('#book-mintime').val());
+            var time_end = parseInt($('#book-maxtime').val());
+            var price = parseInt($('#book-price-hour').val())*(time_end - time_start);
+            $('#book-price').val(price.toLocaleString() + " VND");
+            $('#book-price-total').val(price);
+        }
+
+        limit_book_time()
+
+        $('#book-mintime').change(limit_book_time)
+        $('#book-mintime').change(hanlePriceChange)
+        $('#book-maxtime').change(hanlePriceChange)
+
+    </script>
+
+    <script>
+        function showMore(see_all_btn) {
+            var comments_count = see_all_btn.getAttribute("data-comments-count");
+            $("#see-all-btn").attr('hidden', true);
+            for(i = 3; i < comments_count; i++) {
+                $("#comment-index-" + i).removeAttr('hidden');
+            }
+        }
+    </script>
+
+    <script>
+        function deleteComment(del_btn) {
+          var r =  confirm("Do you want to delete this comment?");
+          if (r == true) {
+            var cid = del_btn.getAttribute("data-comment-id");
+    
+            var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+    
+            $.ajaxSetup( {
+              beforeSend: function ( xhr ) {
+                xhr.setRequestHeader( 'X-CSRF-Token', token );
+              }
+            });
+    
+            $.ajax({
+                    url: '/deleteComment',
+                    type: 'POST',
+                    data: {
+                      comment_id: cid
+                    }
+                }).done(function(result) {
+                    $('.single_comment_area[data-comment-id=' + cid + ']' ).remove();
+                    $('#comment-count-label').text(parseInt($('#comment-count-label').text()) - 1)
+                    toastr.success(result.data);
+                });
+          } else {
+            return false;
+          }
+        }
+    
+      </script>
+<% end %>

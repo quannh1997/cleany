@@ -1,0 +1,152 @@
+<% content_for :for_head do %>
+  <%= stylesheet_link_tag 'custom/profile', media: 'all', 'data-turbolinks-track': 'reload' %>
+  <script src="https://www.chartjs.org/samples/latest/utils.js"></script>
+<% end %>
+
+<% content_for :for_content do %>
+  <div class="container">
+    <div class="row" style="margin-top: 20px">
+      <div class="col-12">
+        <h1 style="font-size:30px; margin-bottom: 50px;">Partner Profile</h1>
+      </div>
+        
+      <div class="col-8">
+        <%= form_for @user, html: { multipart: true } do |f| %>
+          <div class="form-group row">
+            <label for="email" class="col-sm-2 col-form-label">Email</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="<%= @user.email %>">
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="name" class="col-sm-2 col-form-label">Name</label>
+            <div class="col-sm-10">
+              <%= f.text_field :name, class: "form-control", id: "new-name",
+                placeholder: "Your Name", required: true  %>
+              <!-- <input type="text" class="form-control" id="new-name" name="new-name" placeholder="Your Name" value="<%= @user.name %>"> -->
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="phone" class="col-sm-2 col-form-label">Phone</label>
+            <div class="col-sm-10">
+              <%= f.number_field :phone, class: "form-control", id: "new-phone",
+                placeholder: "Your Phone Number", required: true  %>
+            </div>
+          </div>
+
+          <!-- <div class="form-group row">
+            <label for="address" class="col-sm-2 col-form-label">Address</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="address" value="<%= address_decode(@user.city, @user.district)%>">
+            </div>
+          </div> -->
+
+          <div class="form-group row">
+              <label for="address" class="col-sm-2 col-form-label">City</label>
+              <div class="col-sm-10">
+                  <label class="sr-only" for="search-city">city/province</label>
+                  <select class="chosen-select form-control" id="city" name="partner[city]" style="-webkit-appearance: menulist;" data-dependent="district" data-placeholder="-- Choose city/province --">
+                      <option selected="selected" value="<%= @user.city%>"><%= @cities[@user.city]['name'] %></option>
+                      <% @cities.each do |city| %>
+                          <option value="<%= city[0] %>"><%= city[1]['name'] %></option>
+                      <% end %>
+                  </select>
+              </div>
+          </div>
+
+          <div class="form-group row">
+              <label for="address" class="col-sm-2 col-form-label">District</label>
+              <div class="col-sm-10">
+                  <div class="form-group">
+                      <label class="sr-only" for="district">district</label>
+                      <select class="chosen-select form-control" id="district" name="partner[district]" style="-webkit-appearance: menulist;" data-dependent="ward" data-placeholder="-- Choose district --">
+                          <option selected="selected" value="<%=@user.district%>"><%= address_decode(@user.city, @user.district).split(',')[0] %></option>
+                      </select>
+                  </div>
+              </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="worktime" class="col-sm-2 col-form-label">Worktime</label>
+            <div class="col-sm-10">
+              <div class="form-group">
+                <%= f.select :worktime_start, options_for_select(6..20, @user.worktime_start), {} , {:class => "form-control col-12 col-md-5", :style=>"display:inline;-webkit-appearance: menulist;"} %>
+                <span>~</span>
+                <%= f.select :worktime_end, options_for_select(7..21, @user.worktime_end), {} , {:class => "form-control col-12 col-md-5", :style=>"display:inline;-webkit-appearance: menulist;"} %>
+                <span> H</span>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="form-group row">
+            <label for="address" class="col-sm-2 col-form-label">Avatar</label>
+            <div class="col-sm-10">
+              <%= f.file_field :avatar, class: "form-control-plaintext", id: "new-avatar", accept: "image/png, image/jpeg" %>
+            </div>
+          </div>
+
+
+          <div class="form-group row">
+            <label for="update" class="col-sm-2 col-form-label"></label>
+            <div class="col-md-10 col-md-offset-2">
+              <button type="submit" class="btn btn-primary">
+                Update
+              </button>
+            </div>
+          </div>
+          
+        <% end %>
+
+      </div>
+
+      <div class="col-4">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-10">
+            <img class="avatar rounded-2" id="avatar" src="<%= @user.avatar %>" width="100%" height="100%" alt="avatar" onerror="this.src='https://i.imgur.com/MYHtJt5.png'"  >
+        </div>
+      </div>
+
+    </div>
+  </div>
+<% end %>
+
+
+<% content_for :for_js do %>
+    <script>
+        function limit_time(){
+          var end_times = $('#partner_worktime_end')[0].options
+          if (parseInt($('#partner_worktime_end').val()) <= parseInt($('#partner_worktime_start').val())){
+              $('#partner_worktime_end').val(parseInt($('#partner_worktime_start').val()) + 1)
+          }
+          for (var i = 0; i < end_times.length; i++){
+            if (parseInt(end_times[i].value) <= parseInt($('#partner_worktime_start').val())){
+              $(end_times[i]).css('display', 'none')
+            }else{
+              $(end_times[i]).css('display', 'block')
+            }
+          }
+        }
+        limit_time()
+        $('#partner_worktime_start').change(limit_time)
+        $('#city').change(function() {
+            if($(this).val() != 'default') {
+                var city_code = $(this).val();
+                $.ajax({
+                    url: "/get_district",
+                    method: "GET",
+                    data: {
+                        city_code: city_code,
+                    },
+                    success:function(result){
+                        $('#district').html(result.data);
+                    }
+                })
+            }
+        });
+
+    </script>
+<% end %>

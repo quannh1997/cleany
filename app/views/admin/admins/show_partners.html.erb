@@ -1,0 +1,106 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Phone</th>
+      <th scope="col">Salary (Thousand VND)</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @partners.each do |partner| %>
+        
+            <tr id="partner<%= partner.id %>">
+                
+                    
+                    <td><%= partner.name %></td>
+                    <td><%= partner.email%></td>
+                    <td><%= partner.phone%></td>
+                    <td>
+                      <input id="partner_salary_<%= partner.id %>" style="border: 0; background-color: inherit" type="number" readonly value="<%= partner.cost %>">
+                    </td>
+                    <td>    
+                        <button onClick="deletePartner(this)" data-partner-id="<%= partner.id %>" type="submit" class="btn btn-danger">
+                            Delete
+                        </button>
+                      <button onClick="handleSalary(this)" data-partner-id="<%= partner.id %>" data-salary-btn-status="0" class="btn btn-success">
+                        Edit Salary
+                      </button>
+                    </td>
+                
+            </tr>
+        
+    <% end %>
+  </tbody>
+</table>
+
+<% content_for :for_js do %>
+  <script>
+    function deletePartner(del_btn) {
+      var r =  confirm("Do you want to delete the partner?");
+      if (r == true) {
+        var uid = del_btn.getAttribute("data-partner-id");
+
+        var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+
+        $.ajaxSetup( {
+          beforeSend: function ( xhr ) {
+            xhr.setRequestHeader( 'X-CSRF-Token', token );
+          }
+        });
+
+        $.ajax({
+                url: '/admin/partner_destroy',
+                type: 'POST',
+                data: {
+                  partner_id: uid
+                }
+            }).done(function(result) {
+               $("#partner"+uid).remove();
+               toastr.success(result.data);
+            });
+      } else {
+        return false;
+      }
+    }
+
+    function handleSalary(salary_btn) {
+        var status = salary_btn.getAttribute("data-salary-btn-status");
+        var uid = salary_btn.getAttribute("data-partner-id");
+        if(status == "1") {
+            var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+
+            $.ajaxSetup( {
+                beforeSend: function ( xhr ) {
+                    xhr.setRequestHeader( 'X-CSRF-Token', token );
+                }
+            });
+
+            $.ajax({
+                url: '/admin/salary_edit',
+                type: 'POST',
+                data: {
+                    partner_id: uid,
+                    salary: $("#partner_salary_"+uid).val()
+                }
+            }).done(function(result) {
+                toastr.success(result.data);
+                salary_btn.setAttribute("data-salary-btn-status", 0);
+                $("#partner_salary_"+uid).attr("readonly", true);
+                $("#partner_salary_"+uid).css("background-color", "inherit");
+                salary_btn.innerHTML = "Edit Salary";
+                $(salary_btn).removeClass("btn-primary").addClass("btn-success");
+            });
+        }else {
+            $("#partner_salary_"+uid).attr("readonly", false);
+            $("#partner_salary_"+uid).css("background-color", "white");
+            $("#partner_salary_"+uid).focus();
+            $("#partner_salary_"+uid).select();
+            salary_btn.innerHTML = "Save";
+            $(salary_btn).removeClass("btn-success").addClass("btn-primary");
+            salary_btn.setAttribute("data-salary-btn-status", 1);
+        }
+    }
+  </script>
+<% end %>

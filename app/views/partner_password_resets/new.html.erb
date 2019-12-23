@@ -1,0 +1,43 @@
+<% content_for :for_content do %>
+  <!-- ##### Breadcrumb Area Start ##### -->
+  <div class="vizew-breadcrumb" style="padding-top: 20px; padding-bottom: 15px;">
+      <div class="container">
+          <div class="row">
+              <div class="col-12">
+                  <nav aria-label="breadcrumb">
+                      <ol class="breadcrumb">
+                          <li class="breadcrumb-item"><a href="<%= root_path %>"><i class="fa fa-home" aria-hidden="true"></i> Home</a></li>
+                          <li class="breadcrumb-item active" aria-current="page">ForgotPassword</li>
+                      </ol>
+                  </nav>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- ##### Breadcrumb Area End ##### -->
+
+  <!-- ##### Login Area Start ##### -->
+  <div class="vizew-login-area section-padding-80" style="padding-top: 0">
+      <div class="container">
+          <div class="row justify-content-center">
+              <div class="col-12 col-md-6">
+                  <div class="login-content">
+                      <!-- Section Title -->
+                      <div class="section-heading">
+                          <h4>Enter your email to reset password of Partner account</h4>
+                          <div class="line"></div>
+                      </div>
+
+                      <%= form_for :password_reset, url: partner_password_resets_path do |f| %>
+                        <div class="form-group">
+                          <%= f.email_field :email, placeholder: "Enter your email", class: "form-control", required: true %>
+                        </div>
+                        <%= f.submit "Reset Password", class: "btn vizew-btn w-100 mt-30" %>
+                      <% end %>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  <!-- ##### Login Area End ##### -->
+<% end %>

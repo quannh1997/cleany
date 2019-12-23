@@ -1,0 +1,7 @@
+{
+  "name": "liquick_cleany",
+  "private": true,
+  "dependencies": {
+    "admin-lte": "2.3.5"
+  }
+}

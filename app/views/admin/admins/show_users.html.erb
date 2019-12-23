@@ -1,0 +1,60 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Phone</th>
+      <th scope="col">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @users.each do |user| %>
+        
+            <tr id="user<%= user.id %>">
+                
+                    
+                    <td><%= user.name %></td>
+                    <td><%= user.email%></td>
+                    <td><%= user.phone%></td>
+                    <td>    
+                        <button onClick="deleteUser(this)" data-user-id="<%= user.id %>" type="submit" class="btn btn-danger">
+                            Delete
+                        </button></td>
+                
+            </tr>
+        
+    <% end %>
+  </tbody>
+</table>
+
+<% content_for :for_js do %>
+  <script>
+    function deleteUser(del_btn) {
+      var r =  confirm("Do you want to delete the user?");
+      if (r == true) {
+        var uid = del_btn.getAttribute("data-user-id");
+
+        var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+
+        $.ajaxSetup( {
+          beforeSend: function ( xhr ) {
+            xhr.setRequestHeader( 'X-CSRF-Token', token );
+          }
+        });
+
+        $.ajax({
+                url: '/admin/user_destroy',
+                type: 'POST',
+                data: {
+                    user_id: uid
+                }
+            }).done(function(result) {
+               $("#user"+uid).remove();
+               toastr.success(result.data);
+            });
+      } else {
+        return false;
+      }
+    }
+  </script>
+<% end %>

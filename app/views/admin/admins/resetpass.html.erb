@@ -1,0 +1,40 @@
+<% content_for :for_head do %>
+  <%= stylesheet_link_tag    'admin/login', media: 'all', 'data-turbolinks-track': 'reload' %>
+<% end %>
+<meta name="viewport" content="initial-scale=1.0, width=device-width" />
+<title>Reset password</title>
+<link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+<script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+<script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+<script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+<script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+<link rel="stylesheet" type="text/css" 
+href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+
+
+<% content_for :for_content do %>
+<div class="wrapper fadeInDown">
+<div id="formContent">
+  <!-- Tabs Titles -->
+
+  <!-- Icon -->
+  <div class="fadeIn first">
+    <img src="https://image.flaticon.com/icons/svg/78/78948.svg" id="icon" style="width: 50px; margin: 15px;" alt="User Icon" />
+    <span>Reset admin's password</span>
+    <p style="color:red" id="alert"><%= alert %></p>
+  </div>
+
+  <%= form_tag admin_send_reset_mail_path do |form| %>
+    <input type="text" id="login"  class="fadeIn second" name="email" placeholder="Admin Account">
+    <input type="submit" class="fadeIn fourth" value="Send mail">
+  <% end %>
+  
+
+</div>
+</div>
+<% end %>
+

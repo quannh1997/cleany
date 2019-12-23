@@ -1,0 +1,85 @@
+<% content_for :for_head do %>
+  <% end %>
+  
+  <% content_for :for_content do %>
+    <div class="container">
+      <div class="row" style="margin-top: 20px">
+        <div class="col-12">
+          <h1 style="font-size:30px; margin-bottom: 50px;">User Booking</h1>
+        </div>
+          
+        <div class="col-12">
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Staff</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Address</th>
+                <th scope="col">Time</th>
+                <th scope="col">Note</th>
+                <th scope="col">Status</th>
+                <!-- <th scope="col">Handle</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <% @working_logs.each_with_index do |working_log, index| %>
+                <tr id="working<%= working_log.id %>">
+                  <th scope="row"><%= index %></th>
+                  <td><%= working_log.partner.name %></td>
+                  <td><%= working_log.partner.phone %></td>
+                  <td><%= working_log.address %></td>
+                  <td><%= working_log.worktime_start %>h ~ <%= working_log.worktime_end %>h ・ <%= working_log.working_date %></td>
+                  <td><%= working_log.note %></td>
+                  <td id="working-status-<%= working_log.id %>"><%= working_log.status!= 0 ? "<span style='color: blue'>Accepted</span>".html_safe : "<span style='color: orange'>Waiting</span>".html_safe %></td>
+                  <!-- <td>
+                      <button onClick="deleteBooking(this)" data-working-id="<%= working_log.id %>" class="btn btn-danger" style="height: 30px;font-size: 15px;padding: 0 5px;">
+                        Delete
+                      </button>
+                  </td> -->
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+  
+        <div class="col-12" style="height: 100px;">
+        </div>
+      </div>
+    </div>
+  <% end %>
+  
+  
+  <% content_for :for_js do %>
+  <script>
+  
+      function deleteBooking(del_btn) {
+        var r =  confirm("Do you want to delete this working?");
+        if (r == true) {
+          var wid = del_btn.getAttribute("data-working-id");
+  
+          var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+  
+          $.ajaxSetup( {
+            beforeSend: function ( xhr ) {
+              xhr.setRequestHeader( 'X-CSRF-Token', token );
+            }
+          });
+  
+          $.ajax({
+                  url: '/deleteBooking',
+                  type: 'POST',
+                  data: {
+                    working_id: wid
+                  }
+              }).done(function(result) {
+                $("#working"+wid).remove();
+                 toastr.success(result.data);
+              });
+        } else {
+          return false;
+        }
+      }
+    </script>
+  <% end %>
+  

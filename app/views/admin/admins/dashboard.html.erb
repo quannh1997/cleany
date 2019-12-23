@@ -1,0 +1,219 @@
+<% content_for :for_head do %>
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <%# <script src="https://www.chartjs.org/dist/2.9.3/Chart.min.js"></script> %>
+  <script src="https://www.chartjs.org/samples/latest/utils.js"></script>
+<% end %>
+<section class="content">
+      
+      <div class="container-fluid">
+        <h1 class="m-0 text-dark">Dashboard</h1>
+        <!-- Small boxes (Stat box) -->
+        <div class="row">
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+              <div class="inner">
+                <h3><%= @users_count%></h3>
+
+                <p>Users</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-person"></i>
+              </div>
+              <a href="<%= admin_users_list_path %>" class="small-box-footer">More info <i class="fas ion-forward"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+              <div class="inner">
+                <h3><%= @partners_count %><sup style="font-size: 20px"></h3>
+
+                <p>Partners</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-android-walk"></i>
+              </div>
+              <a href="<%= admin_partners_list_path%>" class="small-box-footer">More info <i class="fas ion-forward"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3><%= @booking_count%></h3>
+
+                <p>Booking</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-android-hand"></i>
+              </div>
+              <a href="#" class="small-box-footer">More info <i class="fas ion-forward"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+              <div class="inner">
+                <h3><%= number_to_currency(@money*1000, unit: "", locale: :vi, precision: 0, format: "%n %u") %></h3>
+
+                <p>Total money</p>
+              </div>
+              <div class="icon">
+                ₫
+              </div>
+              <a href="#chart-label" class="small-box-footer">More info <i class="fas ion-forward"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+        </div>
+        <!-- /.row -->
+        <!-- Main row -->
+        <div class="row">
+          <!-- Left col -->
+          <section class="col-lg-7 connectedSortable ui-sortable">
+            <div class="card">
+              <div class="card-header ui-sortable-handle" style="cursor: move;">
+                <h3 class="card-title">
+                  <i id="chart-label" class="fas fa-chart-pie mr-1"></i>
+                  Money
+                </h3>
+                <%# <div class="card-tools">
+                  <ul class="nav nav-pills ml-auto">
+                    <li class="nav-item">
+                      <a class="nav-link active" href="#revenue-chart" data-toggle="tab">Area</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#sales-chart" data-toggle="tab">Donut</a>
+                    </li>
+                  </ul>
+                </div> %>
+              </div><!-- /.card-header -->
+              <div class="card-body">
+                <div class="tab-content p-0">
+                  <div class="wrapper col-2"><canvas id="chart-2" style="height: 250px;"></canvas></div>
+                </div>
+              </div><!-- /.card-body -->
+            </div>                     
+            <!-- /.card -->
+          </section>
+          <!-- /.Left col -->
+          <!-- right col (We are only adding the ID to make the widgets sortable)-->
+          <section class="col-lg-5 connectedSortable ui-sortable">
+            <div class="card bg-gradient-success">
+              <div class="card-header border-0 ui-sortable-handle" style="cursor: move;">
+
+                <h3 class="card-title">
+                  <i class="ion ion-calendar"></i>
+                  Calendar
+                </h3>
+                <!-- /. tools -->
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body pt-0">
+                <!--The calendar -->
+                <div id="calendar" style="width: 100%">
+                  <div class="bootstrap-datetimepicker-widget usetwentyfour">
+                    <ul class="list-unstyled"><li class="show"><div class="datepicker"><div class="datepicker-days" style="">
+                    <table class="table table-sm">
+                    <thead><tr><th class="prev" data-action="previous"></th>
+                    <th class="picker-switch" data-action="pickerSwitch" colspan="5" title="Select Month">December 2019</th><th class="next" data-action="next"></th></tr><tr><th class="dow">Su</th><th class="dow">Mo</th><th class="dow">Tu</th><th class="dow">We</th><th class="dow">Th</th><th class="dow">Fr</th><th class="dow">Sa</th></tr></thead>
+                    <tbody id="days-in-month">
+                      <%# <tr><td data-action="selectDay" data-day="12/01/2019" class="day weekend">1</td></tr> %>
+                    </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+          </section>
+          <!-- right col -->
+        </div>
+        <!-- /.row (main row) -->
+      </div><!-- /.container-fluid -->
+    </section>
+<% content_for :for_js do%>
+<script>
+function daysInMonth (month, year) {
+    return new Date(year, month, 0).getDate();
+}
+var days = daysInMonth(12, 2019);
+for (var i = 0; i <= days / 7; i++){
+    var tr = document.createElement('tr');
+    for (var j = 0; j < 7; j++) {
+        var day = 1 + (i * 7 + j) % days;
+        var today = new Date().getDate() == day ? "active" : '';
+        var newday = 1 + (i * 7 + j) > days ? "new" : '';
+        tr.innerHTML += '<td data-action="selectDay" class="day ' + newday + ' ' + today + '">' + day + '</td>';
+    }
+    $('#days-in-month').append(tr)
+}
+
+var month_data = JSON.parse(new DOMParser().parseFromString("<%=@money_month%>", 'text/html').body.textContent);
+
+var presets = window.chartColors;
+var utils = Samples.utils;
+var inputs = {
+    min: -100,
+    max: 100,
+    count: 8,
+    decimals: 2,
+    continuity: 1
+};
+
+		var options = {
+			maintainAspectRatio: false,
+			spanGaps: false,
+			elements: {
+				line: {
+					tension: 0.000001
+				}
+			},
+			plugins: {
+				filler: {
+					propagate: false
+				}
+			},
+			scales: {
+				xAxes: [{
+					ticks: {
+						autoSkip: false,
+						maxRotation: 0
+					}
+				}]
+			}
+		};
+
+			// reset the random seed to generate the same data for all charts
+			utils.srand(8);
+
+			var money_chart = new Chart('chart-2', {
+				type: 'line',
+				data: {
+					labels: Object.keys(month_data).map(x=> x.split('-')[2]),
+					datasets: [{
+						backgroundColor: utils.transparentize(presets.red),
+						borderColor: presets.red,
+						data: Object.values(month_data),
+						label: 'Thousand VND',
+						fill: 'start'
+					}]
+				},
+				options: Chart.helpers.merge(options, {
+					title: {
+						text: (new Date().getFullYear())+'/' +(1+new Date().getMonth()),
+						display: true
+					}
+				})
+			});
+
+
+      money_chart.options.elements.line.tension = 0.4;
+      money_chart.update();
+
+</script>
+<% end %>

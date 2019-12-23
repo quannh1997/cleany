@@ -1,0 +1,76 @@
+<% content_for :for_head do %>
+  <%= stylesheet_link_tag 'custom/profile', media: 'all', 'data-turbolinks-track': 'reload' %>
+<% end %>
+
+<% content_for :for_content do %>
+  <div class="container">
+    <div class="row" style="margin-top: 20px">
+      <div class="col-12">
+        <h1 style="font-size:30px; margin-bottom: 50px;">Your Profile</h1>
+      </div>
+        
+      <div class="col-8">
+        <%= form_for @user, html: { multipart: true } do |f| %>
+          <div class="form-group row">
+            <label for="email" class="col-sm-2 col-form-label">Email</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="<%= @user.email %>">
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="name" class="col-sm-2 col-form-label">Name</label>
+            <div class="col-sm-10">
+              <%= f.text_field :name, class: "form-control", id: "new-name",
+                placeholder: "Your Name", required: true  %>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="phone" class="col-sm-2 col-form-label">Phone</label>
+            <div class="col-sm-10">
+              <%= f.number_field :phone, class: "form-control", id: "new-phone",
+                placeholder: "Your Phone Number", required: true  %>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <label for="address" class="col-sm-2 col-form-label">Address</label>
+            <div class="col-sm-10">
+              <%= f.text_field :address, class: "form-control", id: "new-address",
+                placeholder: "Your Address", required: true  %>
+            </div>
+          </div>
+
+          <div class="form-group row">
+              <label for="address" class="col-sm-2 col-form-label">Avatar</label>
+              <div class="col-sm-10">
+                <%= f.file_field :avatar, class: "form-control-plaintext", id: "new-avatar", accept: "image/png, image/jpeg" %>
+              </div>
+            </div>
+
+          <div class="form-group row">
+            <label for="update" class="col-sm-2 col-form-label"></label>
+            <div class="col-md-10 col-md-offset-2">
+              <button type="submit" class="btn btn-primary">
+                Update
+              </button>
+            </div>
+          </div>
+
+        <% end %>
+
+      </div>
+
+      <div class="col-4">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-10">
+            <img class="avatar rounded-2" id="avatar" src="<%= @user.avatar %>" width="100%" height="100%" alt="avatar" onerror="this.src='https://i.imgur.com/MYHtJt5.png'"  >
+        </div>
+      </div>
+
+    </div>
+  </div>
+<% end %>
+
