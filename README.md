@@ -4,17 +4,17 @@ Website to preduce `Housekeeping` service when you're away from home.
 
 ## Enviroment:
 
-* Ruby version: `2.6.3`
+* Ruby version: `2.6.1`
 
 ## Run introduction
 * install required gem: `bundle install`
 * install required package: `npm install`
 * add env variable to send mail: 
-  - open config file : `nano ~/.bashrc` or `nano ~/.zshrc`
+  - open config file : `sudo gedit ~/.bashrc` or `sudo edit ~/.zshrc`
   - add env variable : 
     + `export GMAIL_USERNAME="xxx@gmail.com"` 
     + `export GMAIL_PASSWORD="xxxxxx"`
-  - save config file
+  - save config file and reload : `source ~/.bashrc`
 * create database: `rails db:drop db:create db:migrate db:seed`
 * start server:  `rails s`
 * Open web: `localhost:3000`
